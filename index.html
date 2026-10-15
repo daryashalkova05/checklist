@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>6 интерактивных чек-листов · самооценка и взаимооценка</title>
+  <style>
+    /* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #F7F5FB;
+      font-family: 'Times New Roman', Times, serif;
+      padding: 8mm 5mm;
+      color: #1F2937;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ===== ЭКРАННАЯ ВЕРСИЯ (бонус) ===== */
+    .no-print {
+      display: block;
+    }
+
+    /* панель управления */
+    .toolbar {
+      max-width: 210mm;
+      margin: 0 auto 6mm auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4mm;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFFFFF;
+      padding: 3mm 5mm;
+      border-radius: 4mm;
+      box-shadow: 0 2mm 6mm rgba(124, 58, 237, 0.12);
+      border: 1px solid #DDD6FE;
+    }
+
+    .toolbar-buttons {
+      display: flex;
+      gap: 3mm;
+    }
+
+    .btn {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      font-size: 10pt;
+      font-weight: 600;
+      padding: 2.5mm 5mm;
+      border-radius: 2.5mm;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 2mm;
+      background: #EDE9FE;
+      color: #5B21B6;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .btn:hover {
+      background: #7C3AED;
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(124, 58, 237, 0.35);
+    }
+
+    .btn-primary {
+      background: #7C3AED;
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: #5B21B6;
+    }
+
+    /* ===== СТРАНИЦА A4 (карточка чек-листа) ===== */
+    .checklist {
+      width: 100%;
+      max-width: 210mm;
+      margin: 0 auto 12mm auto;
+      background: #FFFFFF;
+      border: 2px dashed #7C3AED;
+      border-radius: 4mm;
+      padding: 5mm 4mm 4mm 4mm;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      page-break-after: always;
+      break-after: page;
+      box-shadow: 0 1mm 8mm rgba(0, 0, 0, 0.04);
+    }
+
+    .checklist:last-child {
+      page-break-after: auto;
+      break-after: auto;
+      margin-bottom: 0;
+    }
+
+    /* ===== ШАПКА ===== */
+    .checklist-header {
+      border-bottom: 1.5px solid #7C3AED;
+      padding-bottom: 2mm;
+      margin-bottom: 2.5mm;
+      flex-shrink: 0;
+    }
+
+    .checklist-header h2 {
+      font-size: 18pt;
+      font-weight: 700;
+      color: #5B21B6;
+      font-family: 'Times New Roman', Times, serif;
+      line-height: 1.2;
+    }
+
+    .checklist-header .meta {
+      font-size: 10pt;
+      font-style: italic;
+      color: #555;
+      font-family: 'Times New Roman', Times, serif;
+      margin-top: 0.5mm;
+    }
+
+    .checklist-header .meta span {
+      margin-right: 4mm;
+    }
+
+    /* ===== ОСНОВНАЯ ЧАСТЬ (сетка блоков) ===== */
+    .blocks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: min-content;
+      gap: 2mm 2.5mm;
+      align-items: start;
+      overflow: visible;
+    }
+
+    .block {
+      break-inside: auto;
+      page-break-inside: auto;
+      margin: 0;
+    }
+
+    .block h3 {
+      font-size: 16pt;
+      font-weight: 700;
+      color: #1F2937;
+      font-family: 'Times New Roman', Times, serif;
+      border-bottom: 1px solid #EDE9FE;
+      padding-bottom: 0.5mm;
+      margin-bottom: 1.2mm;
+      line-height: 1.2;
+    }
+
+    .block ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .block li {
+      font-size: 14pt;
+      line-height: 1.25;
+      font-family: 'Times New Roman', Times, serif;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5mm;
+      margin-bottom: 0.8mm;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* кастомный чекбокс для печати / экрана */
+    .checkbox-print {
+      display: inline-block;
+      width: 11pt;
+      height: 11pt;
+      border: 1pt solid #7C3AED;
+      background: #FFFFFF;
+      flex-shrink: 0;
+      margin-top: 2.5pt;
+      position: relative;
+      border-radius: 1pt;
+      transition: background 0.15s ease;
+      cursor: pointer;
+    }
+
+    /* интерактивный чекбокс (экран) */
+    .checkbox-print.checked {
+      background: #7C3AED;
+    }
+
+    .checkbox-print.checked::after {
+      content: "✓";
+      color: #FFFFFF;
+      font-size: 10pt;
+      font-weight: 700;
+      position: absolute;
+      top: -2.5pt;
+      left: 0.5pt;
+      line-height: 1;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* при печати галочка исчезает, квадрат белый */
+    @media print {
+      .checkbox-print {
+        background: #FFFFFF !important;
+        border: 1pt solid #7C3AED !important;
+      }
+      .checkbox-print.checked::after {
+        display: none !important;
+      }
+      .checkbox-print.checked {
+        background: #FFFFFF !important;
+      }
+    }
+
+    /* последний блок на всю ширину */
+    .block-full {
+      grid-column: 1 / -1;
+    }
+
+    /* ===== ПОДВАЛ ===== */
+    .checklist-footer {
+      border-top: 1.5px solid #7C3AED;
+      padding-top: 2mm;
+      margin-top: 3mm;
+      flex-shrink: 0;
+    }
+
+    .footer-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 3mm;
+    }
+
+    .score-block {
+      background: #EDE9FE;
+      border: 1px solid #7C3AED;
+      border-left: 3px solid #7C3AED;
+      border-radius: 2mm;
+      padding: 2mm;
+      font-size: 10pt;
+      font-family: 'Times New Roman', Times, serif;
+      flex: 1 1 70%;
+      line-height: 1.3;
+    }
+
+    .score-block .score-title {
+      font-weight: 700;
+      font-size: 12pt;
+      color: #5B21B6;
+      margin-bottom: 0.5mm;
+    }
+
+    .score-block .score-criteria {
+      font-size: 10pt;
+      color: #1F2937;
+    }
+
+    .score-circle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .score-circle {
+      width: 14mm;
+      height: 14mm;
+      border: 2pt solid #7C3AED;
+      border-radius: 50%;
+      background: #FFFFFF;
+    }
+
+    .improve-section {
+      margin-top: 2mm;
+    }
+
+    .improve-label {
+      font-size: 12pt;
+      font-weight: 700;
+      font-family: 'Times New Roman', Times, serif;
+      color: #1F2937;
+      margin-bottom: 1mm;
+    }
+
+    .print-lines {
+      display: block;
+    }
+
+    .line-item {
+      border-bottom: 1px solid #7C3AED;
+      height: 3.2mm;
+      margin-bottom: 3.2mm;
+      width: 100%;
+    }
+
+    .line-item:last-child {
+      margin-bottom: 0;
+    }
+
+    /* экранные поля ввода (скрыты при печати) */
+    .screen-input {
+      display: none;
+    }
+
+    .screen-score-input {
+      display: none;
+    }
+
+    /* ===== ЭКРАННЫЕ ЭЛЕМЕНТЫ (бонус) ===== */
+    @media screen {
+      .screen-input {
+        display: block;
+        width: 100%;
+        border: 1px solid #DDD6FE;
+        border-radius: 2mm;
+        padding: 1.5mm 2mm;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-size: 10pt;
+        color: #1F2937;
+        background: #FFFFFF;
+        margin-top: 1mm;
+        resize: vertical;
+        transition: border-color 0.2s;
+      }
+
+      .screen-input:focus {
+        outline: none;
+        border-color: #7C3AED;
+        box-shadow: 0 0 0 2px #EDE9FE;
+      }
+
+      .screen-score-input {
+        display: block;
+        width: 14mm;
+        height: 14mm;
+        border: 2pt solid #7C3AED;
+        border-radius: 50%;
+        background: #FFFFFF;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        font-size: 11pt;
+        font-weight: 700;
+        color: #5B21B6;
+        padding: 0;
+        line-height: 14mm;
+        outline: none;
+      }
+
+      .screen-score-input:focus {
+        box-shadow: 0 0 0 3px #EDE9FE;
+      }
+
+      /* прогресс-бейдж */
+      .progress-badge {
+        font-family: 'Inter', sans-serif;
+        font-size: 9pt;
+        font-weight: 600;
+        color: #7C3AED;
+        background: #EDE9FE;
+        padding: 1mm 3mm;
+        border-radius: 4mm;
+        display: inline-block;
+        margin-left: 2mm;
+        vertical-align: middle;
+      }
+
+      /* заголовок с бейджем */
+      .header-top {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1mm 3mm;
+      }
+    }
+
+    /* ===== ПРАВИЛА ПЕЧАТИ ===== */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 5mm;
+      }
+
+      body {
+        background: #FFFFFF;
+        padding: 0;
+        font-family: 'Times New Roman', Times, serif;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .progress-badge,
+      .screen-input,
+      .screen-score-input {
+        display: none !important;
+      }
+
+      .print-lines {
+        display: block !important;
+      }
+
+      .checklist {
+        box-shadow: none;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+        border: 2px dashed #7C3AED;
+        border-radius: 4mm;
+        padding: 5mm 4mm 4mm 4mm;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .checklist:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .checkbox-print {
+        background: #FFFFFF !important;
+        border: 1pt solid #7C3AED !important;
+      }
+
+      .checkbox-print.checked::after {
+        display: none !important;
+      }
+
+      .checkbox-print.checked {
+        background: #FFFFFF !important;
+      }
+    }
+
+    /* адаптив для очень маленьких экранов */
+    @media screen and (max-width: 600px) {
+      .blocks-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* вспомогательный класс */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ (не для печати) -->
+  <div class="toolbar no-print">
+    <div style="font-family: 'Inter', sans-serif; font-weight: 600; color: #5B21B6; font-size: 11pt;">
+      📋 6 чек-листов · А4
+    </div>
+    <div class="toolbar-buttons">
+      <button class="btn btn-primary" id="downloadPdfBtn">📥 Скачать в PDF</button>
+      <button class="btn" id="resetAllBtn">🔄 Сбросить все галочки</button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ЧЕК-ЛИСТ 1. «Критерии хорошего проекта»                       -->
+  <!-- ============================================================ -->
+  <div class="checklist" data-checklist-id="1">
+    <div class="checklist-header">
+      <div class="header-top">
+        <h2>Критерии хорошего проекта</h2>
+        <span class="progress-badge no-print" data-badge-for="1">Отмечено 0 из 18</span>
+      </div>
+      <div class="meta">
+        <span>👤 ученик (самопроверка) + учитель</span>
+        <span>⚙️ проектная технология</span>
+      </div>
+    </div>
+
+    <div class="blocks-grid">
+      <div class="block">
+        <h3>Проблема и цель</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="1"></span> Проблема сформулирована чётко и понятно.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Проблема интересна и значима для автора.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Цель проекта ясна.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Есть гипотеза (если проект исследовательский).</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Планирование</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="1"></span> Составлен план работы.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Определены этапы.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Распределены роли (если проект групповой).</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Установлены сроки.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Реализация</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="1"></span> Собраны данные из разных источников.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Проведены расчёты, измерения, эксперименты.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Использованы математические методы.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Есть таблицы, графики, схемы.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Продукт</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="1"></span> Продукт создан.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Продукт имеет практическую ценность.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Продукт понятен аудитории.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Продукт оформлен аккуратно.</li>
+        </ul>
+      </div>
+      <div class="block block-full">
+        <h3>Презентация и рефлексия</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="1"></span> Проведена презентация.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Даны ответы на вопросы.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Проведена рефлексия: что получилось, что нет.</li>
+          <li><span class="checkbox-print" data-checklist="1"></span> Определены перспективы.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="checklist-footer">
+      <div class="footer-summary">
+        <div class="score-block">
+          <div class="score-title">📊 Итоговая оценка</div>
+          <div class="score-criteria">
+            18–16 галочек — отлично.<br>
+            15–12 — хорошо.<br>
+            11–8 — нужно доработать.<br>
+            меньше 8 — проект не завершён.
+          </div>
+        </div>
+        <div class="score-circle-wrapper">
+          <div class="score-circle"></div>
+        </div>
+      </div>
+      <div class="improve-section">
+        <div class="improve-label">✏️ Что улучшить:</div>
+        <div class="print-lines">
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+        </div>
+        <input class="screen-input no-print" type="text" placeholder="Введите заметку..." data-input-for="1">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ЧЕК-ЛИСТ 2. «Критерии хорошего исследования»                  -->
+  <!-- ============================================================ -->
+  <div class="checklist" data-checklist-id="2">
+    <div class="checklist-header">
+      <div class="header-top">
+        <h2>Критерии хорошего исследования</h2>
+        <span class="progress-badge no-print" data-badge-for="2">Отмечено 0 из 17</span>
+      </div>
+      <div class="meta">
+        <span>👤 ученик + учитель</span>
+        <span>⚙️ исследовательская технология</span>
+      </div>
+    </div>
+
+    <div class="blocks-grid">
+      <div class="block">
+        <h3>Проблема и гипотеза</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="2"></span> Проблема сформулирована.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Гипотеза сформулирована.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Гипотеза проверяемая.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Понятно, что именно проверяется.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Планирование исследования</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="2"></span> Определены методы исследования.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Определены источники данных.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Составлен план.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Определены сроки.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Сбор данных</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="2"></span> Данные собраны.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Данные достоверны.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Использованы разные источники.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Данные систематизированы.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Анализ и вывод</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="2"></span> Проведён анализ данных.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Сделаны расчёты.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Построены таблицы, графики.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Сформулирован вывод.</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Подтвердилась или опровергнута гипотеза.</li>
+        </ul>
+      </div>
+      <div class="block block-full">
+        <h3>Рефлексия</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="2"></span> Что было трудным?</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Что помогло?</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Чему научился?</li>
+          <li><span class="checkbox-print" data-checklist="2"></span> Что бы изменил?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="checklist-footer">
+      <div class="footer-summary">
+        <div class="score-block">
+          <div class="score-title">📊 Итоговая оценка</div>
+          <div class="score-criteria">
+            17–15 — отлично.<br>
+            14–11 — хорошо.<br>
+            10–7 — нужно доработать.<br>
+            меньше 7 — исследование не завершено.
+          </div>
+        </div>
+        <div class="score-circle-wrapper">
+          <div class="score-circle"></div>
+        </div>
+      </div>
+      <div class="improve-section">
+        <div class="improve-label">✏️ Что улучшить:</div>
+        <div class="print-lines">
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+        </div>
+        <input class="screen-input no-print" type="text" placeholder="Введите заметку..." data-input-for="2">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ЧЕК-ЛИСТ 3. «Критерии хорошего поиска»                        -->
+  <!-- ============================================================ -->
+  <div class="checklist" data-checklist-id="3">
+    <div class="checklist-header">
+      <div class="header-top">
+        <h2>Критерии хорошего поиска</h2>
+        <span class="progress-badge no-print" data-badge-for="3">Отмечено 0 из 16</span>
+      </div>
+      <div class="meta">
+        <span>👤 ученик + учитель</span>
+        <span>⚙️ поисковая технология</span>
+      </div>
+    </div>
+
+    <div class="blocks-grid">
+      <div class="block">
+        <h3>Задача и понимание</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="3"></span> Задача понятна.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Готового алгоритма нет.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Понятно, что нужно найти.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Определены исходные данные.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Пробы и гипотезы</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="3"></span> Предложены разные способы.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Сделаны пробы.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Проанализированы ошибки.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Выбрана лучшая гипотеза.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Решение</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="3"></span> Найден способ решения.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Способ проверен на примерах.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Способ работает.</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Способ можно применить к другим задачам.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Рефлексия</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="3"></span> Что помогло найти способ?</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Какие пробы были ошибочными?</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Почему?</li>
+          <li><span class="checkbox-print" data-checklist="3"></span> Чему научился?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="checklist-footer">
+      <div class="footer-summary">
+        <div class="score-block">
+          <div class="score-title">📊 Итоговая оценка</div>
+          <div class="score-criteria">
+            16–14 — отлично.<br>
+            13–10 — хорошо.<br>
+            9–6 — нужно доработать.<br>
+            меньше 6 — поиск не завершён.
+          </div>
+        </div>
+        <div class="score-circle-wrapper">
+          <div class="score-circle"></div>
+        </div>
+      </div>
+      <div class="improve-section">
+        <div class="improve-label">✏️ Что улучшить:</div>
+        <div class="print-lines">
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+        </div>
+        <input class="screen-input no-print" type="text" placeholder="Введите заметку..." data-input-for="3">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ЧЕК-ЛИСТ 4. «Анализ урока с использованием технологии»        -->
+  <!-- ============================================================ -->
+  <div class="checklist" data-checklist-id="4">
+    <div class="checklist-header">
+      <div class="header-top">
+        <h2>Анализ урока с использованием технологии</h2>
+        <span class="progress-badge no-print" data-badge-for="4">Отмечено 0 из 20</span>
+      </div>
+      <div class="meta">
+        <span>👤 учитель, студент-будущий учитель</span>
+        <span>⚙️ все три технологии</span>
+      </div>
+    </div>
+
+    <div class="blocks-grid">
+      <div class="block">
+        <h3>Определение технологии</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="4"></span> Какая технология использована? (проект / поиск / исследование)</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Обосновано, почему именно она.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Понятно, что лежит в основе (проблемная ситуация).</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Проблемная ситуация</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="4"></span> Создана проблемная ситуация.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Она интересна ученикам.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Она посильна.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Она запускает деятельность.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Роль учителя</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="4"></span> Учитель — фасилитатор, а не транслятор.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Задаёт наводящие вопросы.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Не даёт готовых ответов.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Направляет, но не решает за учеников.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Деятельность учеников</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="4"></span> Ученики активны.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Есть пробы и ошибки.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Есть самостоятельная работа.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Есть продукт / вывод / найденный способ.</li>
+        </ul>
+      </div>
+      <div class="block block-full">
+        <h3>Рефлексия</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="4"></span> Проведена рефлексия.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Ученики осознали, что делали.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Ученики увидели результат.</li>
+          <li><span class="checkbox-print" data-checklist="4"></span> Определены перспективы.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="checklist-footer">
+      <div class="footer-summary">
+        <div class="score-block">
+          <div class="score-title">📊 Итоговая оценка</div>
+          <div class="score-criteria">
+            20–18 — урок отличный.<br>
+            17–14 — хороший.<br>
+            13–10 — есть что улучшить.<br>
+            меньше 10 — урок не соответствует технологии.
+          </div>
+        </div>
+        <div class="score-circle-wrapper">
+          <div class="score-circle"></div>
+        </div>
+      </div>
+      <div class="improve-section">
+        <div class="improve-label">✏️ Что бы ты изменил:</div>
+        <div class="print-lines">
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+        </div>
+        <input class="screen-input no-print" type="text" placeholder="Введите заметку..." data-input-for="4">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ЧЕК-ЛИСТ 5. «Самооценка работы в группе»                      -->
+  <!-- ============================================================ -->
+  <div class="checklist" data-checklist-id="5">
+    <div class="checklist-header">
+      <div class="header-top">
+        <h2>Самооценка работы в группе</h2>
+        <span class="progress-badge no-print" data-badge-for="5">Отмечено 0 из 20</span>
+      </div>
+      <div class="meta">
+        <span>👤 ученик (после групповой работы)</span>
+        <span>⚙️ проектная / поисковая / исследовательская</span>
+      </div>
+    </div>
+
+    <div class="blocks-grid">
+      <div class="block">
+        <h3>Мой вклад</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я предлагал(а) идеи.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я выполнял(а) свою часть работы.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я доводил(а) дело до конца.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я помогал(а) товарищам.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Работа в команде</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я слушал(а) других.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я не перебивал(а).</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я аргументировал(а) свою позицию.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я принимал(а) чужую точку зрения, если она была доказана.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Решение конфликтов</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я не ссорился(ась) с товарищами.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я помогал(а) разрешать споры.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я предлагал(а) компромиссы.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я сохранял(а) доброжелательный тон.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Результат</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="5"></span> Наша группа достигла цели.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Продукт / вывод / способ готовы.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я доволен(льна) результатом.</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Я готов(а) работать в этой группе снова.</li>
+        </ul>
+      </div>
+      <div class="block block-full">
+        <h3>Рефлексия</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="5"></span> Что мне удалось лучше всего?</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Что нужно улучшить?</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Чему я научился(ась) в группе?</li>
+          <li><span class="checkbox-print" data-checklist="5"></span> Что я сделаю иначе в следующий раз?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="checklist-footer">
+      <div class="footer-summary">
+        <div class="score-block">
+          <div class="score-title">📊 Итоговая оценка</div>
+          <div class="score-criteria">
+            20–18 — отлично.<br>
+            17–14 — хорошо.<br>
+            13–10 — есть что улучшить.<br>
+            меньше 10 — нужно поработать над командными навыками.
+          </div>
+        </div>
+        <div class="score-circle-wrapper">
+          <div class="score-circle"></div>
+        </div>
+      </div>
+      <div class="improve-section">
+        <div class="improve-label">✏️ Что улучшить:</div>
+        <div class="print-lines">
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+        </div>
+        <input class="screen-input no-print" type="text" placeholder="Введите заметку..." data-input-for="5">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ЧЕК-ЛИСТ 6. «Критерии хорошего рабочего листа»                 -->
+  <!-- ============================================================ -->
+  <div class="checklist" data-checklist-id="6">
+    <div class="checklist-header">
+      <div class="header-top">
+        <h2>Критерии хорошего рабочего листа</h2>
+        <span class="progress-badge no-print" data-badge-for="6">Отмечено 0 из 25</span>
+      </div>
+      <div class="meta">
+        <span>👤 учитель (самопроверка перед уроком)</span>
+        <span>⚙️ все три технологии</span>
+      </div>
+    </div>
+
+    <div class="blocks-grid">
+      <div class="block">
+        <h3>Поисковая технология</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть жизненная ситуация, понятная ученику.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Задача не решается по готовому шаблону.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть место для проб и ошибок.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть подсказка, но не готовый ответ.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Ученик сам формулирует способ решения.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Исследовательская технология</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть гипотеза.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть 3+ примера для проверки.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть «хитрые» случаи, которые ломают шаблон.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть анализ результатов.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть вывод.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Проектная технология</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть цель продукта.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть план работы.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть критерии оценки продукта.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть презентация.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть рефлексия.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>Структура и понятность</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="6"></span> Инструкция для ученика написана понятно.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Каждый этап подписан.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть место для ответов ученика.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Лист не перегружен текстом.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть итоговый вывод.</li>
+        </ul>
+      </div>
+      <div class="block block-full">
+        <h3>Обратная связь</h3>
+        <ul>
+          <li><span class="checkbox-print" data-checklist="6"></span> Ученик может сам проверить себя.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть критерии самооценки.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть вопросы для рефлексии.</li>
+          <li><span class="checkbox-print" data-checklist="6"></span> Есть возможность вернуться и исправить.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="checklist-footer">
+      <div class="footer-summary">
+        <div class="score-block">
+          <div class="score-title">📊 Итоговая оценка</div>
+          <div class="score-criteria">
+            25–22 — рабочий лист отличный.<br>
+            21–17 — хороший.<br>
+            16–12 — есть что улучшить.<br>
+            меньше 12 — рабочий лист не соответствует технологиям.
+          </div>
+        </div>
+        <div class="score-circle-wrapper">
+          <div class="score-circle"></div>
+        </div>
+      </div>
+      <div class="improve-section">
+        <div class="improve-label">✏️ Что улучшить:</div>
+        <div class="print-lines">
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+          <div class="line-item"></div>
+        </div>
+        <input class="screen-input no-print" type="text" placeholder="Введите заметку..." data-input-for="6">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT (интерактивность на экране)                        -->
+  <!-- ============================================================ -->
+  <script>
+    (function() {
+      'use strict';
+
+      const checkboxes = document.querySelectorAll('.checkbox-print');
+      const resetBtn = document.getElementById('resetAllBtn');
+      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+      const screenInputs = document.querySelectorAll('.screen-input');
+      const screenScoreInputs = document.querySelectorAll('.screen-score-input');
+
+      const checklistMap = {};
+
+      checkboxes.forEach((cb) => {
+        const checklistId = cb.getAttribute('data-checklist') || 'unknown';
+        if (!checklistMap[checklistId]) checklistMap[checklistId] = [];
+        checklistMap[checklistId].push(cb);
+
+        cb.addEventListener('click', function(e) {
+          e.stopPropagation();
+          this.classList.toggle('checked');
+          updateBadge(checklistId);
+          updateLocalStorage();
+        });
+      });
+
+      function updateBadge(checklistId) {
+        const badge = document.querySelector(`.progress-badge[data-badge-for="${checklistId}"]`);
+        if (!badge) return;
+        const items = checklistMap[checklistId] || [];
+        const total = items.length;
+        const checked = items.filter(cb => cb.classList.contains('checked')).length;
+        badge.textContent = `Отмечено ${checked} из ${total}`;
+      }
+
+      function updateAllBadges() {
+        for (const checklistId in checklistMap) {
+          updateBadge(checklistId);
+        }
+      }
+
+      function resetAll() {
+        checkboxes.forEach(cb => cb.classList.remove('checked'));
+        updateAllBadges();
+        screenInputs.forEach(inp => inp.value = '');
+        screenScoreInputs.forEach(inp => inp.value = '');
+        try { localStorage.removeItem('checklistState'); } catch (e) {}
+      }
+
+      function updateLocalStorage() {
+        try {
+          const state = {};
+          for (const checklistId in checklistMap) {
+            state[checklistId] = checklistMap[checklistId].map(cb => cb.classList.contains('checked'));
+          }
+          const texts = {};
+          screenInputs.forEach(inp => {
+            const id = inp.getAttribute('data-input-for');
+            if (id) texts[id] = inp.value;
+          });
+          state._texts = texts;
+          localStorage.setItem('checklistState', JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem('checklistState');
+          if (!raw) return;
+          const state = JSON.parse(raw);
+          for (const checklistId in checklistMap) {
+            const saved = state[checklistId];
+            if (Array.isArray(saved)) {
+              checklistMap[checklistId].forEach((cb, idx) => {
+                if (saved[idx]) cb.classList.add('checked');
+              });
+            }
+          }
+          if (state._texts) {
+            screenInputs.forEach(inp => {
+              const id = inp.getAttribute('data-input-for');
+              if (id && state._texts[id]) inp.value = state._texts[id];
+            });
+          }
+          updateAllBadges();
+        } catch (e) {}
+      }
+
+      downloadPdfBtn.addEventListener('click', function() { window.print(); });
+      resetBtn.addEventListener('click', resetAll);
+
+      screenInputs.forEach(inp => {
+        inp.addEventListener('input', updateLocalStorage);
+      });
+
+      loadState();
+      updateAllBadges();
+    })();
+  </script>
+
+</body>
+</html>
